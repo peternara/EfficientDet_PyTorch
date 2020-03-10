@@ -173,7 +173,10 @@ def main_worker(gpu, ngpus_per_node, args):
     # Training dataset
     train_dataset = []
     if(args.dataset == 'VOC'):
-        train_dataset = VOCDetection(root=args.dataset_root, transform=transforms.Compose(
+        # train_dataset = VOCDetection(root=args.dataset_root, transform=transforms.Compose(
+        #     [Normalizer(), Augmenter(), Resizer()]))
+        train_dataset = VOCDetection(root=args.dataset_root, image_sets=[(
+            '2007', 'test')], transform=transforms.Compose(
             [Normalizer(), Augmenter(), Resizer()]))
         valid_dataset = VOCDetection(root=args.dataset_root, image_sets=[(
             '2007', 'test')], transform=transforms.Compose([Normalizer(), Resizer()]))
