@@ -38,8 +38,8 @@ parser.add_argument('--dataset', default='VOC', choices=['VOC', 'COCO'],
                     type=str, help='VOC or COCO')
 parser.add_argument(
     '--dataset_root',
-    default='/root/data/VOCdevkit/',
-    help='Dataset root directory path [/root/data/VOCdevkit/, /root/data/coco/]')
+    default='/home/guoyao/data/VOCdevkit/',
+    help='Dataset root directory path [/home/guoyao/data/VOCdevkit/, /home/guoyao/data/coco/]')
 parser.add_argument('--network', default='efficientdet-d0', type=str,
                     help='efficientdet-[d0, d1, ..]')
 
@@ -63,7 +63,7 @@ parser.add_argument('--weight_decay', default=5e-4, type=float,
                     help='Weight decay for SGD')
 parser.add_argument('--gamma', default=0.1, type=float,
                     help='Gamma update for SGD')
-parser.add_argument('--save_folder', default='./saved/weights/', type=str,
+parser.add_argument('--save_folder', default='./', type=str,
                     help='Directory for saving checkpoint models')
 parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
