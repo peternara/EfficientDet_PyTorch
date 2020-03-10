@@ -317,7 +317,7 @@ url_map = {
 def load_pretrained_weights(model, model_name, load_fc=True):
     """ Loads pretrained weights, and downloads if loading for the first time. """
     #state_dict = model_zoo.load_url(url_map[model_name])
-    str_pth_file = "/home/guoyao/EfficientDet_PyTorch/efficientnet-b0-355c32eb.pth"
+    str_pth_file = "/home/guoyao/EfficientData/efficientnet-b0-355c32eb.pth"
     state_dict = torch.load(str_pth_file)
 
     if load_fc:
