@@ -102,6 +102,8 @@ class VOCDetection(data.Dataset):
                 id_str = (rootpath, line.strip())
                 if(osp.exists(self._annopath % id_str)) and (osp.exists(self._imgpath % id_str)):
                     self.ids.append((rootpath, line.strip()))
+                else:
+                    print("id {} not exists".format(line.strip()))
 
     def __getitem__(self, index):
         img_id = self.ids[index]
