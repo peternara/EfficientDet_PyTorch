@@ -38,8 +38,8 @@ parser.add_argument('--dataset', default='VOC', choices=['VOC', 'COCO'],
                     type=str, help='VOC or COCO')
 parser.add_argument(
     '--dataset_root',
-    default='/home/guoyao/data/VOCdevkit/',
-    help='Dataset root directory path [/home/guoyao/data/VOCdevkit/, /home/guoyao/data/coco/]')
+    default='/home/guoyao/ShaoZheData/VOCdevkit/',
+    help='Dataset root directory path [/home/guoyao/ShaoZheData/VOCdevkit/, /home/guoyao/ShaoZheData/coco/]')
 parser.add_argument('--network', default='efficientdet-d0', type=str,
                     help='efficientdet-[d0, d1, ..]')
 
@@ -105,6 +105,7 @@ def train(train_loader, model, scheduler, optimizer, epoch, args):
         images = images.cuda().float()
         annotations = annotations.cuda()
         classification_loss, regression_loss = model([images, annotations])
+
         classification_loss = classification_loss.mean()
         regression_loss = regression_loss.mean()
         loss = classification_loss + regression_loss
@@ -157,6 +158,7 @@ def main_worker(gpu, ngpus_per_node, args):
         print("Use GPU: {} for training".format(args.gpu))
 
     if args.distributed:
+        print("distributed is set")
         if args.dist_url == "env://" and args.rank == -1:
             # args.rank = int(os.environ["RANK"])
             args.rank = 1
@@ -180,6 +182,7 @@ def main_worker(gpu, ngpus_per_node, args):
             [Normalizer(), Augmenter(), Resizer()]))
         valid_dataset = VOCDetection(root=args.dataset_root, image_sets=[(
             '2007', 'test')], transform=transforms.Compose([Normalizer(), Resizer()]))
+
         args.num_class = train_dataset.num_classes()
     elif(args.dataset == 'COCO'):
         train_dataset = CocoDataset(
@@ -198,7 +201,9 @@ def main_worker(gpu, ngpus_per_node, args):
                     Normalizer(),
                     Resizer()]))
         args.num_class = train_dataset.num_classes()
+    print("num class is {}".format(args.num_class))
 
+    print("turn dataset into data_loader")
     train_loader = DataLoader(train_dataset,
                               batch_size=args.batch_size,
                               num_workers=args.workers,
@@ -212,6 +217,7 @@ def main_worker(gpu, ngpus_per_node, args):
                               collate_fn=collater,
                               pin_memory=True)
 
+    # load checkpoint
     checkpoint = []
     if(args.resume is not None):
         if os.path.isfile(args.resume):
@@ -237,6 +243,8 @@ def main_worker(gpu, ngpus_per_node, args):
     if(args.resume is not None):
         model.load_state_dict(checkpoint['state_dict'])
     del checkpoint
+
+
     if args.distributed:
         # For multiprocessing distributed, DistributedDataParallel constructor
         # should always set the single device scope, otherwise,
@@ -261,6 +269,7 @@ def main_worker(gpu, ngpus_per_node, args):
             print('Run with DistributedDataParallel without device_ids....')
     elif args.gpu is not None:
         torch.cuda.set_device(args.gpu)
+        print('Run with DataParallel with device_ids....')
         model = model.cuda(args.gpu)
     else:
         model = model.cuda()
@@ -321,6 +330,8 @@ def main():
 
     args.distributed = args.world_size > 1 or args.multiprocessing_distributed
     ngpus_per_node = torch.cuda.device_count()
+    print("ngpus_per_node = {}".format(ngpus_per_node))
+
     if args.multiprocessing_distributed:
         # Since we have ngpus_per_node processes per node, the total world_size
         # needs to be adjusted accordingly
