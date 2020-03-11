@@ -202,8 +202,8 @@ def main_worker(gpu, ngpus_per_node, args):
                     Resizer()]))
         args.num_class = train_dataset.num_classes()
     print("num class is {}".format(args.num_class))
+    return
 
-    print("turn dataset into data_loader")
     train_loader = DataLoader(train_dataset,
                               batch_size=args.batch_size,
                               num_workers=args.workers,
