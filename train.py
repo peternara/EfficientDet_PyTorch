@@ -175,13 +175,13 @@ def main_worker(gpu, ngpus_per_node, args):
     # Training dataset
     train_dataset = []
     if(args.dataset == 'VOC'):
-        # train_dataset = VOCDetection(root=args.dataset_root, transform=transforms.Compose(
-        #     [Normalizer(), Augmenter(), Resizer()]))
         train_dataset = VOCDetection(root=args.dataset_root, image_sets=[(
-            '2007', 'test')], transform=transforms.Compose(
-            [Normalizer(), Augmenter(), Resizer()]))
+            '2007', 'trainval')], transform=transforms.Compose([Normalizer(), Augmenter(), Resizer()]))
+        print(train_dataset.ids)
+
         valid_dataset = VOCDetection(root=args.dataset_root, image_sets=[(
             '2007', 'test')], transform=transforms.Compose([Normalizer(), Resizer()]))
+        print(valid_dataset.ids)
 
         args.num_class = train_dataset.num_classes()
     elif(args.dataset == 'COCO'):

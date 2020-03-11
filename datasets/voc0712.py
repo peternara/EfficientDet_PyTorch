@@ -95,8 +95,10 @@ class VOCDetection(data.Dataset):
         self._annopath = osp.join('%s', 'Annotations', '%s.xml')
         self._imgpath = osp.join('%s', 'JPEGImages', '%s.jpg')
         self.ids = list()
+
         for (year, name) in image_sets:
             rootpath = osp.join(self.root, 'VOC' + year)
+            print("==>{}".format(name))
             for line in open(osp.join(rootpath, 'ImageSets', 'Main', name + '.txt')):
                 self.ids.append((rootpath, line.strip()))
 
@@ -105,8 +107,6 @@ class VOCDetection(data.Dataset):
 
         target = ET.parse(self._annopath % img_id).getroot()
 
-        print(self._imgpath)
-        print(img_id)
         print(self._imgpath % img_id)
         img = cv2.imread(self._imgpath % img_id)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
