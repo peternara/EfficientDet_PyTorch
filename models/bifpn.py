@@ -97,19 +97,19 @@ class BIFPN(nn.Module):
         assert len(inputs) == len(self.in_channels)
 
         # build laterals
-        print("Before lateral Module, input size is: {}".format(inputs[0].shape))
+        #print("Before lateral Module, input size is: {}".format(inputs[0].shape))
         laterals = [
             lateral_conv(inputs[i + self.start_level])
             for i, lateral_conv in enumerate(self.lateral_convs)
         ]
 
         # part 1: build top-down and down-top path with stack
-        print("Before BiFPN Module, input size is: {}".format(laterals[0].shape))
+        #print("Before BiFPN Module, input size is: {}".format(laterals[0].shape))
         used_backbone_levels = len(laterals)
         for bifpn_module in self.stack_bifpn_convs:
             laterals = bifpn_module(laterals)
         outs = laterals
-        print("After BiFPN Module, output size is: {}".format(laterals[0].shape))
+        #print("After BiFPN Module, output size is: {}".format(laterals[0].shape))
 
         # part 2: add extra levels
         if self.num_outs > len(outs):
@@ -175,7 +175,7 @@ class BiFPNModule(nn.Module):
                 xavier_init(m, distribution='uniform')
 
     def forward(self, inputs):
-        print("bifpn module input size is :{}".format(inputs[0].shape))
+        #print("bifpn module input size is :{}".format(inputs[0].shape))
         assert len(inputs) == self.levels
         # build top-down and down-top path with stack
         levels = self.levels
@@ -184,7 +184,7 @@ class BiFPNModule(nn.Module):
         w1 /= torch.sum(w1, dim=0) + self.eps  # normalize
         w2 = self.relu2(self.w2)
         w2 /= torch.sum(w2, dim=0) + self.eps  # normalize
-        print("size W1 = {}, size W2 = {}".format(w1.shape,  w2.shape))
+        #print("size W1 = {}, size W2 = {}".format(w1.shape,  w2.shape))
 
         # build top-down
         idx_bifpn = 0
@@ -193,9 +193,9 @@ class BiFPNModule(nn.Module):
         for in_tensor in inputs:
             inputs_clone.append(in_tensor.clone())
 
-        print("len bifpn_convs = {}".format(len(self.bifpn_convs)))
+        #print("len bifpn_convs = {}".format(len(self.bifpn_convs)))
         for i in range(levels - 1, 0, -1):
-            print("top to down, i={}, idx_bifpn={}".format(i, idx_bifpn))
+            #print("top to down, i={}, idx_bifpn={}".format(i, idx_bifpn))
             pathtd[i - 1] = (w1[0, i-1]*pathtd[i - 1] + w1[1, i-1]*F.interpolate(
                 pathtd[i], scale_factor=2, mode='nearest'))/(w1[0, i-1] + w1[1, i-1] + self.eps)
             pathtd[i - 1] = self.bifpn_convs[idx_bifpn](pathtd[i - 1])
@@ -203,7 +203,7 @@ class BiFPNModule(nn.Module):
 
         # build down-top, path2, path3 and path1
         for i in range(0, levels - 2, 1):
-            print("down to top, i={}, idx_bifpn={}".format(i, idx_bifpn))
+            #print("down to top, i={}, idx_bifpn={}".format(i, idx_bifpn))
             pathtd[i + 1] = (w2[0, i] * pathtd[i + 1] + w2[1, i] * F.max_pool2d(pathtd[i], kernel_size=2) +
                              w2[2, i] * inputs_clone[i + 1])/(w2[0, i] + w2[1, i] + w2[2, i] + self.eps)
             pathtd[i + 1] = self.bifpn_convs[idx_bifpn](pathtd[i + 1])
