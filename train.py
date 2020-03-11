@@ -176,7 +176,8 @@ def main_worker(gpu, ngpus_per_node, args):
     train_dataset = []
     if(args.dataset == 'VOC'):
         train_dataset = VOCDetection(root=args.dataset_root, image_sets=[(
-            '2007', 'trainval')], transform=transforms.Compose([Normalizer(), Augmenter(), Resizer()]))
+            '2007', 'trainval'), ('2012', 'trainval')],
+            transform=transforms.Compose([Normalizer(), Augmenter(), Resizer()]))
         #print(train_dataset.ids)
 
         valid_dataset = VOCDetection(root=args.dataset_root, image_sets=[(
@@ -202,7 +203,6 @@ def main_worker(gpu, ngpus_per_node, args):
                     Resizer()]))
         args.num_class = train_dataset.num_classes()
     print("num class is {}".format(args.num_class))
-    return
 
     train_loader = DataLoader(train_dataset,
                               batch_size=args.batch_size,
