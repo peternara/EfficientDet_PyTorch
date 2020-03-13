@@ -19,6 +19,22 @@ MODEL_MAP = {
     'efficientdet-d7': 'efficientnet-b6',
 }
 
+class EfficientDetBiFPN(nn.Module):
+    def __init__(self,
+                 network='efficientdet-d0',
+                 D_bifpn=3,
+                 W_bifpn=88):
+        super(EfficientDetBiFPN, self).__init__()
+        self.backbone = EfficientNet.get_network_from_name(MODEL_MAP[network])
+        self.neck = BIFPN(in_channels=self.backbone.get_list_features()[-5:],
+                          out_channels=W_bifpn,
+                          stack=D_bifpn,
+                          num_outs=5)
+
+    def forward(self, inputs):
+        x = self.backbone(inputs)
+        return self.neck(x[-5:])
+
 
 class EfficientDet(nn.Module):
     def __init__(self,
@@ -31,7 +47,8 @@ class EfficientDet(nn.Module):
                  threshold=0.01,
                  iou_threshold=0.5):
         super(EfficientDet, self).__init__()
-        self.backbone = EfficientNet.from_pretrained(MODEL_MAP[network])
+        #self.backbone = EfficientNet.from_pretrained(MODEL_MAP[network])
+        self.backbone = EfficientNet.get_network_from_name(MODEL_MAP[network])
 
         # print backbone parameters
         # params = list(self.backbone.named_parameters())
