@@ -8,8 +8,8 @@ from models.module import RegressionModel, ClassificationModel, Anchors, ClipBox
 #from torchvision.ops import nms
 from .losses import FocalLoss
 
-from torchvision.ops import nms
-from .boxes_implement import torch_nms
+#from torchvision.ops import nms
+#from .boxes_implement import torch_nms
 from .box_utils_pytorch import soft_nms
 
 MODEL_MAP = {
@@ -183,8 +183,11 @@ class EfficientDet(nn.Module):
             transformed_anchors = transformed_anchors[:, scores_over_thresh, :]
             scores = scores[:, scores_over_thresh, :]
 
-            anchors_nms_idx = nms(
-                transformed_anchors[0, :, :], scores[0, :, 0], iou_threshold=self.iou_threshold)
+            # anchors_nms_idx = nms(
+            #     transformed_anchors[0, :, :], scores[0, :, 0], iou_threshold=self.iou_threshold)
+            score = scores[0, :, :]
+            anchors_score = torch.cat([transformed_anchors[0, :, :], score], dim = 1)
+            anchors_nms_idx, _ = soft_nms(anchors_score,  score_threshold=self.iou_threshold)
 
             nms_scores, nms_class = classification[0, anchors_nms_idx, :].max(
                 dim=1)
