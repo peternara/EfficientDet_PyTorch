@@ -1,0 +1,5 @@
+./models/__pycache__
+./datasets/__pycache__
+./docs/demo.jpg
+*.pth
+*.jpg
