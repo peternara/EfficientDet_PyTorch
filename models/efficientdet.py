@@ -5,8 +5,12 @@ from models.efficientnet import EfficientNet
 from models.bifpn import BIFPN
 from .retinahead import RetinaHead
 from models.module import RegressionModel, ClassificationModel, Anchors, ClipBoxes, BBoxTransform
-from torchvision.ops import nms
+#from torchvision.ops import nms
 from .losses import FocalLoss
+
+from torchvision.ops import nms
+from .boxes_implement import torch_nms
+from .box_utils_pytorch import soft_nms
 
 MODEL_MAP = {
     'efficientdet-d0': 'efficientnet-b0',
@@ -18,6 +22,72 @@ MODEL_MAP = {
     'efficientdet-d6': 'efficientnet-b6',
     'efficientdet-d7': 'efficientnet-b6',
 }
+
+
+'''
+    @ Part function of efficient detection, from backbone to bifpn, without nms.
+    @ Author: cema
+    @ Date: 2020.03.17, Tuesday
+'''
+class EfficientDetBiFPN(nn.Module):
+    def __init__(self,
+                 num_classes,
+                 network='efficientdet-d0',
+                 D_bifpn=3,
+                 W_bifpn=88):
+        super(EfficientDetBiFPN, self).__init__()
+        self.backbone = EfficientNet.get_network_from_name(MODEL_MAP[network])
+        self.neck = BIFPN(in_channels=self.backbone.get_list_features()[-5:],
+                          out_channels=W_bifpn,
+                          stack=D_bifpn,
+                          num_outs=5)
+
+        self.bbox_head = RetinaHead(num_classes=num_classes,
+                                    in_channels=W_bifpn)
+
+        self.anchors = Anchors()
+
+        self.regressBoxes = BBoxTransform()
+        self.clipBoxes = ClipBoxes()
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
+                m.weight.data.normal_(0, math.sqrt(2. / n))
+            elif isinstance(m, nn.BatchNorm2d):
+                m.weight.data.fill_(1)
+                m.bias.data.zero_()
+        self.freeze_bn()
+
+    def freeze_bn(self):
+        '''Freeze BatchNorm layers.'''
+        for layer in self.modules():
+            if isinstance(layer, nn.BatchNorm2d):
+                layer.eval()
+
+    def extract_feat(self, img):
+        """
+            Directly extract features from the backbone+neck
+        """
+        x = self.backbone(img)
+        x = self.neck(x[-5:])
+        return x
+
+    def forward(self, inputs):
+        x = self.extract_feat(inputs)
+
+        outs = self.bbox_head(x)
+
+        regression = torch.cat([out for out in outs[1]], dim=1)
+        anchors = self.anchors(inputs)
+
+        transformed_anchors = self.regressBoxes(anchors, regression)
+        transformed_anchors = self.clipBoxes(transformed_anchors, inputs)
+
+        classification = torch.cat([out for out in outs[0]], dim=1)
+        scores = torch.max(classification, dim=2, keepdim=True)[0]
+        return scores,  classification, transformed_anchors
+
 
 class EfficientDetBiFPN(nn.Module):
     def __init__(self,
@@ -34,6 +104,7 @@ class EfficientDetBiFPN(nn.Module):
     def forward(self, inputs):
         x = self.backbone(inputs)
         return self.neck(x[-5:])
+
 
 
 class EfficientDet(nn.Module):
