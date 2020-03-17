@@ -79,10 +79,11 @@ class Detect(object):
 
         with torch.no_grad():
             scores, classification, transformed_anchors = self.model(img)
+            print("{},   {},   {}".format(scores.shape, classification.shape, transformed_anchors.shape))
+
             bboxes = list()
             labels = list()
             bbox_scores = list()
-            colors = list()
             for j in range(scores.shape[0]):
                 bbox = transformed_anchors[[j], :][0].data.cpu().numpy()
                 x1 = int(bbox[0]*origin_img.shape[1]/self.size_image[1])
