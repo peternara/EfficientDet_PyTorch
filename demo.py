@@ -24,8 +24,9 @@ parser.add_argument('-it', '--iou_threshold', default=0.6,
                     type=float, help='Visualization threshold')
 parser.add_argument('-w', '--weight', default='./weights/voc0712.pth',
                     type=str, help='Weight model path')
-parser.add_argument('-c', '--cam',
-                    action="store_true", help='Use camera')
+
+parser.add_argument('-c', '--cam',  action="store_true",
+                    help='Use camera', default= False)
 parser.add_argument('-f', '--file_name', default='pic.jpg',
                     help='Image path')
 parser.add_argument('--num_class', default=21, type=int,
@@ -37,7 +38,6 @@ class Detect(object):
     """
         dir_name: Folder or image_file
     """
-
     def __init__(self, weights, num_class=21, network='efficientdet-d0', size_image=(512, 512)):
         super(Detect,  self).__init__()
         self.weights = weights
@@ -171,7 +171,10 @@ class Detect(object):
 
 
 if __name__ == '__main__':
-    detect = Detect(weights=args.weight)
+    args.file_name = "./dog.jpg"
+    detect = Detect(weights = "./checkpoint_48.pth",
+                    num_class = 20)
+
     print('cam: ', args.cam)
     if args.cam:
         detect.camera()

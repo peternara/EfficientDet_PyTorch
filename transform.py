@@ -49,8 +49,9 @@ def Test_Onnx_Efficient_Det(dummy_input,
                             iou_threshold = 0.5):
     ort_session = onnxruntime.InferenceSession(path_or_bytes = onnx_path)
     ort_inputs = {ort_session.get_inputs()[0].name: tensor_to_numpy(dummy_input)}
-
     scores, classifications, anchors = ort_session.run(None, ort_inputs)
+
+    
     boxes_scores = np.concatenate((anchors[0, :, :], scores[0, :, :]), axis=1)
     picked, box_picked = hard_nms(boxes_scores,
                           iou_threshold= iou_threshold)
