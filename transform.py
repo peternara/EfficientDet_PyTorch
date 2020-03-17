@@ -36,11 +36,6 @@ def efficientdet_torch_to_onnx(input, onnx_path):
     efficient_data = torch.load('checkpoint_48.pth', map_location='cpu')
     model = efficient_data['state_dict']
 
-    # backbone_dict, neck_dict, bbox_head_cls_convs_dict, bbox_head_reg_convs_dict = split_model_dict(model)
-    # bifpn_model = dict(backbone_dict, **neck_dict)
-    # conv_model = dict(bifpn_model, **bbox_head_cls_convs_dict)
-    # conv_model = dict(conv_model, **bbox_head_reg_convs_dict)
-
     det_bifpn.load_state_dict(model)
     torch.onnx.export(det_bifpn, input, onnx_path, opset_version=11, verbose=False)
 
