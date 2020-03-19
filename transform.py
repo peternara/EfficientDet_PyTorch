@@ -65,7 +65,8 @@ def Test_Onnx_Efficient_Det(dummy_input,
     print(score.shape)
 
 if __name__ == '__main__':
-    dummy_input = torch.randn(4, 3, 512, 512)
-    onnx_path = f"efficientdet-d0.onnx"
+    dummy_input = torch.randn(1, 3, 512, 512)
+    onnx_path = "efficientdet_d0_OffSwish.onnx"
+    efficientdet_torch_to_onnx(dummy_input, onnx_path)
 
     Test_Onnx_Efficient_Det(dummy_input, onnx_path)
