@@ -85,8 +85,9 @@ class EfficientDetBiFPN(nn.Module):
         transformed_anchors = self.clipBoxes(transformed_anchors, inputs)
 
         classification = torch.cat([out for out in outs[0]], dim=1)
-        scores = torch.max(classification, dim=2, keepdim=True)[0]
-        return scores,  classification, transformed_anchors
+        #scores = torch.max(classification, dim=2, keepdim=True)[0]
+        # return scores,  classification, transformed_anchors
+        return classification, transformed_anchors
 
 
 class EfficientDet(nn.Module):
