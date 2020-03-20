@@ -37,7 +37,8 @@ def efficientdet_torch_to_onnx(input, onnx_path):
     model = efficient_data['state_dict']
 
     det_bifpn.load_state_dict(model)
-    torch.onnx.export(det_bifpn, input, onnx_path, opset_version=11, verbose=False)
+    torch.onnx.export(det_bifpn, input, onnx_path, export_params=True,
+                      keep_initializers_as_inputs=True,  opset_version=11, verbose=False)
 
 
 def tensor_to_numpy(input_tensor):
