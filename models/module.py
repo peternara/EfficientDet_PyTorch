@@ -55,7 +55,6 @@ class ClipBoxes(nn.Module):
         super(ClipBoxes, self).__init__()
 
     def forward(self, boxes, img):
-
         batch_size, num_channels, height, width = img.shape
 
         boxes[:, :, 0] = torch.clamp(boxes[:, :, 0], min=0)
@@ -176,7 +175,6 @@ class Anchors(nn.Module):
             all_anchors = np.append(all_anchors, shifted_anchors, axis=0)
 
         all_anchors = np.expand_dims(all_anchors, axis=0)
-
         return torch.from_numpy(all_anchors.astype(np.float32)).to(image.device)
 
 

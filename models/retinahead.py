@@ -16,8 +16,7 @@ def multi_apply(func, *args, **kwargs):
 class RetinaHead(nn.Module):
     """
     An anchor-based head used in [1]_.
-    The head contains two subnetworks. The first classifies anchor boxes and
-    the second regresses deltas for the anchors.
+    The head contains two sub-networks. classify and regression
     References:
         .. [1]  https://arxiv.org/pdf/1708.02002.pdf
     Example:

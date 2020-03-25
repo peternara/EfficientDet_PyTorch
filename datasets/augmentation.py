@@ -39,6 +39,7 @@ def get_augumentation(phase, width=512, height=512, min_area=0., min_visibility=
         list_transforms.extend([
             albu.Resize(height=height, width=width)
         ])
+
     list_transforms.extend([
         albu.Normalize(mean=(0.485, 0.456, 0.406),
                        std=(0.229, 0.224, 0.225), p=1),
